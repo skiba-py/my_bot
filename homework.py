@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from exceptions import (ApiException, EmptyListException, JsonException,
                         ResponseException)
+from settings import ENDPOINT, HEADERS, HOMEWORK_VERDICTS, RETRY_PERIOD
 
 load_dotenv()
 
@@ -26,21 +27,13 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD = 600
-ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
-HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-
-HOMEWORK_VERDICTS = {
-    'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
-    'reviewing': 'Работа взята на проверку ревьюером.',
-    'rejected': 'Работа проверена: у ревьюера есть замечания.'
-}
+# подскажите пожалуйста по исключениям и логам,
+# все ли правильно логируется, может можно где-то оптимизировать код?
 
 
 def check_tokens() -> bool:
     """Проверяет доступность токенов."""
-    tokens = [PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]
-    return all(tokens)
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def send_message(bot, message: str) -> None:
@@ -84,10 +77,7 @@ def check_response(response: dict) -> list:
         raise TypeError('Нет списка в ответе API по ключу "homeworks"')
     if not response.get('homeworks'):
         raise EmptyListException('Нет новых статусов')
-    try:
-        return response.get('homeworks')
-    except Exception as error:
-        raise ResponseException(f'Из ответа не получен список работ {error}')
+    return response.get('homeworks')
 
 
 def parse_status(homework: dict) -> str:
