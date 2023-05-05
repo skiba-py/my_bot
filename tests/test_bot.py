@@ -112,6 +112,7 @@ class TestHomework:
         )
     }
 
+    @pytest.mark.timeout(1, method='thread')
     def test_homework_const(self, homework_module):
         for const in self.HOMEWORK_CONSTANTS:
             utils.check_default_var_exists(homework_module, const)
@@ -524,6 +525,10 @@ class TestHomework:
         Mock all functions inside main() which need environment vars to work
         correctly.
         """
+        monkeypatch.setattr(homework_module, 'PRACTICUM_TOKEN', 'sometoken')
+        monkeypatch.setattr(homework_module, 'TELEGRAM_TOKEN', '1234:abcdefg')
+        monkeypatch.setattr(homework_module, 'TELEGRAM_CHAT_ID', '12345')
+
         func_name = 'main'
         utils.check_function(
             homework_module,
@@ -623,9 +628,6 @@ class TestHomework:
             current_timestamp,
             homework_module
         )
-        monkeypatch.setattr(homework_module, 'PRACTICUM_TOKEN', 'sometoken')
-        monkeypatch.setattr(homework_module, 'TELEGRAM_TOKEN', '1234:abcdefg')
-        monkeypatch.setattr(homework_module, 'TELEGRAM_CHAT_ID', '12345')
 
         with caplog.at_level(logging.WARN):
             try:
@@ -652,9 +654,6 @@ class TestHomework:
             current_timestamp,
             homework_module
         )
-        monkeypatch.setattr(homework_module, 'PRACTICUM_TOKEN', 'sometoken')
-        monkeypatch.setattr(homework_module, 'TELEGRAM_TOKEN', '1234:abcdefg')
-        monkeypatch.setattr(homework_module, 'TELEGRAM_CHAT_ID', '12345')
 
         func_name = 'check_response'
         expecred_data = {

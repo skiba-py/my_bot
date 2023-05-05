@@ -160,7 +160,7 @@ def with_timeout(f):
             # homework_module.main() timed out
             raise AssertionError(
                 'Убедитесь, что внутри цикла `while True` функции `main` при '
-                'любом сценарии работы бота выполняется функция '
+                'любом сценарии исполнения кода выполняется функция '
                 '`time.sleep()`.'
             )
 
