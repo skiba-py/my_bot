@@ -7,28 +7,27 @@ from http import HTTPStatus
 import requests
 import telegram
 from dotenv import load_dotenv
-
 from exceptions import (ApiException, EmptyListException, JsonException,
                         ResponseException)
-from settings import ENDPOINT, HEADERS, HOMEWORK_VERDICTS, RETRY_PERIOD
+from settings import ENDPOINT, HOMEWORK_VERDICTS, RETRY_PERIOD
 
 load_dotenv()
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.DEBUG,
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('output.log')
+    ],
 )
 logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(handler)
 
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-
-# подскажите пожалуйста по исключениям и логам,
-# все ли правильно логируется, может можно где-то оптимизировать код?
+HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 
 def check_tokens() -> bool:
@@ -100,7 +99,7 @@ def main():
         logger.critical('Отсутствуют обязательные переменные окружения!')
         sys.exit(1)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    timestamp = int(time.time())  # - 30 * 24 * 60 * 60  # для тестирования
+    timestamp = int(time.time())
     previous_homework = None
     previous_error = None
     while True:
@@ -109,7 +108,6 @@ def main():
             homeworks = check_response(response)
             current_homework = homeworks[0]
             message = parse_status(current_homework)
-            # if previous_homework is not None: - c проверкой код не работает
             if current_homework != previous_homework:
                 send_message(bot, message)
             previous_homework = current_homework
